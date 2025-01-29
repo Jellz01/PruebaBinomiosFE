@@ -1,26 +1,31 @@
-// dukes-service.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
-export interface Duke {
-  name: string;
-  age: number;
+export interface Client {
+  id: number;
+  cedula: string;
+  consumo: string;
+  deudas: string;
+  nombre: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class DukesServiceService {
-  private baseUrl = 'http://localhost:8080/JavEE/resources';
+  private baseUrl = 'http://localhost:8080/PruebaS/api/Usuario';
 
   constructor(private http: HttpClient) {}
 
-
-  
-  getDukes(): Observable<Duke[]> {
-    return this.http.get<Duke[]>(`${this.baseUrl}/dukes`, {
-      withCredentials: true
-    });
+  getClients(): Observable<Client[]> {
+    return this.http.get<Client[]>(this.baseUrl)
+      .pipe(
+        catchError(error => {
+          console.error('Error fetching clients:', error);
+          return throwError(() => new Error('Failed to fetch clients data'));
+        })
+      );
   }
 }

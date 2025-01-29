@@ -1,31 +1,44 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { DukesServiceService } from './services/dukes-service.service';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs'; // Import firstValueFrom for async handling
-import { NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DukesServiceService, Client } from './services/dukes-service.service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
+  standalone: true,
   styleUrls: ['./app.component.scss'],
-  imports: [NgFor],
+  imports: [CommonModule, FormsModule],
   template: `
-    <h1>Dukes List</h1>
-    <ol>
-      <li *ngFor="let duke of dukes">{{duke.name}} {{duke.age}}</li>
-    </ol>
-  `
+    <h1>Clients List</h1>
+    <input type="text" [(ngModel)]="searchCedula" placeholder="Enter Cedula" />
+    <button (click)="searchClient()">Search</button>
+    
+    <div *ngIf="filteredClient">
+      <h2>Client Found:</h2>
+      <p>{{ filteredClient.nombre }} - Cedula: {{ filteredClient.cedula }} - Deudas: {{ filteredClient.deudas }}</p>
+    </div>
+    <div *ngIf="searchCedula && !filteredClient">
+      <p>No client found with cedula: {{ searchCedula }}</p>
+    </div>
+  `,
 })
 export class AppComponent implements OnInit {
+  clients: Client[] = [];
   title = 'Proyecto10';
-  dukes: { name: string, age: number }[] = [{ name: 'offline', age: 2 }, { name: 'cacthed', age: 3 }];
+  searchCedula: string = '';
+  filteredClient: Client | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private dukesService: DukesServiceService) {}
 
-  ngOnInit() {
-    firstValueFrom(this.http.get<{ name: string, age: number }[]>("http://localhost:8080/JavEE/resources/dukes"))
-      .then(r => this.dukes = r)
-      .catch(error => console.error('Error fetching data:', error));
+  ngOnInit(): void {
+    this.dukesService.getClients().subscribe({
+      next: (data) => (this.clients = data),
+      error: (err) => console.error('Error fetching clients:', err),
+    });
+  }
+
+  searchClient(): void {
+    this.filteredClient = this.clients.find(client => client.cedula === this.searchCedula) || null;
   }
 }
+
