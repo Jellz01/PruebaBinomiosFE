@@ -6,20 +6,21 @@ import { catchError } from 'rxjs/operators';
 export interface Client {
   id: number;
   cedula: string;
-  consumo: string;
-  deudas: string;
+  partido: string;
+  nombrePartido: string;
   nombre: string;
+  vice: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class DukesServiceService {
-  private baseUrl = 'http://localhost:8080/PruebaS/api/Usuario';
+  private baseUrl = 'http://localhost:8080/PruebaS/api/Binomios';
 
   constructor(private http: HttpClient) {}
 
-  getClients(): Observable<Client[]> {
+  getBinomios(): Observable<Client[]> {
     return this.http.get<Client[]>(this.baseUrl)
       .pipe(
         catchError(error => {
@@ -27,5 +28,12 @@ export class DukesServiceService {
           return throwError(() => new Error('Failed to fetch clients data'));
         })
       );
+  }
+
+  sendBinomios(cedulaa: string, nombree: string,partidoo : string,nombreParr : string,vicee: string): any{
+    
+
+
+
   }
 }
